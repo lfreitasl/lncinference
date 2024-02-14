@@ -6,3 +6,6 @@ results/
 testing/
 testing*
 *.pyc
+null/
+nf-params.yml
+.sendmail_tmp.html

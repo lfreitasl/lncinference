@@ -1,0 +1,12 @@
+name: rnamining
+channels:
+    - conda-forge
+    - defaults
+    - bioconda
+    - anaconda
+dependencies:
+    - python
+    - pandas
+    - scikit-learn
+    - xgboost
+    - biopython

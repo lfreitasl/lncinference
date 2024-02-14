@@ -35,7 +35,13 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK            } from '../subworkflows/local/input_check'
+include { QC_FILT                } from '../subworkflows/local/readsqc'
+include { ALIGNMENT              } from '../subworkflows/local/alignment.nf'
+include { STRINGTIE_ASSEMBLY_GTF } from '../subworkflows/local/stringtie_assembly'
+include { GFFCOMPARE             } from '../modules/local/gffcompare/main'
+include { GFFREAD                } from '../modules/local/gffread/main'
+include { RNAMINING              } from '../modules/local/rnamining/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,9 +52,10 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
+
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,25 +69,65 @@ def multiqc_report = []
 workflow LNCINFERENCE {
 
     ch_versions = Channel.empty()
+    ch_bam      = Channel.empty()
+    
+
+    // Checking some mandatory parameters
+    if (params.skip_alignment && input_bams == null) { exit 1, 'A full path to a directory containing BAM files must be provided in input_bams parameter if not aligning your data' }
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
-    // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
-    // ! There is currently no tooling to help you write a sample sheet schema
+    if (!params.skip_alignment || !params.skip_qc){
+        INPUT_CHECK (file(params.input))
+        ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    }
+    // Subworkflow for quality control
 
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    if (!params.skip_qc) {
+        QC_FILT (
+        INPUT_CHECK.out.reads,
+	    params.cutoff
+        )
+    
+    ch_versions = ch_versions.mix(QC_FILT.out.versions)
+    }
+
+    // Subworkflow ALIGNMENT
+    if (!params.skip_alignment) {
+        if (params.skip_filtering) {
+            ALIGNMENT(INPUT_CHECK.out.reads)
+        }
+
+        else {
+            ALIGNMENT(QC_FILT.out.filt_reads)
+        }
+
+        ch_versions = ch_versions.mix(ALIGNMENT.out.versions)
+    }
+
+    // Subworkflow stringtie transcript resconstruction
+    if (!params.skip_alignment){
+        STRINGTIE_ASSEMBLY_GTF(ALIGNMENT.out.bam)
+        ch_versions = ch_versions.mix(STRINGTIE_ASSEMBLY_GTF.out.versions)
+    }
+
+    if (params.input_bams){
+        Channel.fromPath(params.input_bams).map { path ->
+        def meta = [id: path.getBaseName(), type: 'single_end']
+        return [meta, path.toString()]
+        }.set { ch_bam }
+
+        STRINGTIE_ASSEMBLY_GTF(ch_bam)
+        ch_versions = ch_versions.mix(STRINGTIE_ASSEMBLY_GTF.out.versions)
+    }
+
+
+    if (!params.skip_class){
+        CLASSIFICATION_POTENTIAL_CODING(STRINGTIE_ASSEMBLY_GTF.out.gtf)
+        ch_versions = ch_versions.mix(CLASSIFICATION_POTENTIAL_CODING.out.versions)
+    }
+    
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -99,8 +146,11 @@ workflow LNCINFERENCE {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
 
+    if (!params.skip_qc) {
+    ch_multiqc_files = ch_multiqc_files.mix(QC_FILT.out.multiqc.ifEmpty([]))
+    }
+    
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),

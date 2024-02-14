@@ -28,6 +28,10 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "input_bams": {
+                    "type": "string",
+                    "description": "A full path to a directory containing previous made alignment (use only if skiping QC and Alignment)"
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -48,11 +52,9 @@
             "fa_icon": "fas fa-dna",
             "description": "Reference genome related files and options required for the workflow.",
             "properties": {
-                "genome": {
+                "reference": {
                     "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "description": "Reference genome for aligning steps on the pipeline"
                 },
                 "fasta": {
                     "type": "string",
@@ -235,7 +237,8 @@
                 "multiqc_methods_description": {
                     "type": "string",
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
-                    "fa_icon": "fas fa-cog"
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
                 },
                 "validate_params": {
                     "type": "boolean",
@@ -266,6 +269,88 @@
                     "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
                 }
             }
+        },
+        "filtering_fastq_options": {
+            "title": "Filtering fastq options",
+            "type": "object",
+            "description": "Cut-off for filtering fastq.gz files based on read length summary produced by QC analysis",
+            "default": "",
+            "properties": {
+                "skip_qc": {
+                    "type": "boolean",
+                    "description": "Whether skip the whole quality control step"
+                },
+                "skip_filtering": {
+                    "type": "boolean",
+                    "description": "Whether skip filtering based on read length step. If false, you'll perform QC analysis only on raw reads. When first analysing your data, we recommend to set this to true and see how is your raw data quality, once you've checked it, you can run the pipeline again setting this parameter to false and choosing adequate cutoff."
+                },
+                "cutoff": {
+                    "type": "string",
+                    "default": 15000,
+                    "description": "Maximum readlength that will be on data after filtering step."
+                }
+            }
+        },
+        "alignment_options": {
+            "title": "Alignment options",
+            "type": "object",
+            "description": "Set the output options from minimap2 alignment",
+            "default": "",
+            "properties": {
+                "skip_alignment": {
+                    "type": "boolean",
+                    "description": "Whether skip alignment step (Use this if you already have bam files. See input_bams)"
+                },
+                "bam_format": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether output bam format or not from alignment"
+                },
+                "cigar_paf_format": {
+                    "type": "boolean",
+                    "description": "Whether output cigar paf format or not from alignment",
+                    "hidden": true
+                },
+                "cigar_bam": {
+                    "type": "boolean",
+                    "description": "Whether output cigar bam format or not from alignment",
+                    "hidden": true
+                },
+                "skip_qfilt": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Wheter skip the alignment quality filter with samtools"
+                },
+                "qscore": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "If using alignment quality filter set the q value threshold."
+                }
+            }
+        },
+        "stringtie_assembly_step": {
+            "title": "Stringtie assembly step",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "refgff": {
+                    "type": "string",
+                    "description": "Full path for reference gff/gtf (Preferably use gtf!!) for gffcompare step."
+                }
+            }
+        },
+        "classification_and_coding_prediction": {
+            "title": "Classification and Coding-Prediction",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_class": {
+                    "type": "boolean",
+                    "description": "Whether skip classification and coding prediction steps"
+                }
+            }
         }
     },
     "allOf": [
@@ -283,6 +368,18 @@
         },
         {
             "$ref": "#/definitions/generic_options"
+        },
+        {
+            "$ref": "#/definitions/filtering_fastq_options"
+        },
+        {
+            "$ref": "#/definitions/alignment_options"
+        },
+        {
+            "$ref": "#/definitions/stringtie_assembly_step"
+        },
+        {
+            "$ref": "#/definitions/classification_and_coding_prediction"
         }
     ]
 }

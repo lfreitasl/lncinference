@@ -4,12 +4,12 @@
   |\\ | |__  __ /  ` /  \\ |__) |__         }  {
   | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
                                         `._,._,'
-  nf-core/lncinference v${version}
+  lfreitasl/lncinference v${version}
 ----------------------------------------------------
 Run Name: $runName
 
 <% if (success){
-    out << "## nf-core/lncinference execution completed successfully! ##"
+    out << "## lfreitasl/lncinference execution completed successfully! ##"
 } else {
     out << """####################################################
 ## nf-core/lncinference execution completed unsuccessfully! ##
