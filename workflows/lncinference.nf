@@ -73,8 +73,9 @@ workflow LNCINFERENCE {
     
 
     // Checking some mandatory parameters
-    if (params.skip_alignment && input_bams == null) { exit 1, 'A full path to a directory containing BAM files must be provided in input_bams parameter if not aligning your data' }
-
+    if (params.skip_alignment && params.input_bams == null) { exit 1, 'A full path to a directory containing BAM files must be provided in input_bams parameter if not aligning your data' }
+    if (!params.skip_alignment && (params.input_bams != '' || params.input_bams != "")) { exit 1, 'Choose either aligning or using your own input bams!' }
+    
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
@@ -112,7 +113,7 @@ workflow LNCINFERENCE {
         ch_versions = ch_versions.mix(STRINGTIE_ASSEMBLY_GTF.out.versions)
     }
 
-    if (params.input_bams){
+    if (params.input_bams!='' || params.input_bams!=""){
         Channel.fromPath(params.input_bams).map { path ->
         def meta = [id: path.getBaseName(), type: 'single_end']
         return [meta, path.toString()]
