@@ -30,8 +30,7 @@
                 },
                 "input_bams": {
                     "type": "string",
-                    "description": "A full path to a directory containing previous made alignment (use only if skiping QC and Alignment)",
-                    "default": "''"
+                    "description": "A full path to a directory containing previous made alignment the path must end with /*.bam (use only if skiping QC and Alignment. Also, if you're trying to run the pipeline for QC only set this parameter to an empty string such as '' or \"\")"
                 },
                 "email": {
                     "type": "string",
