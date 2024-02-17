@@ -35,14 +35,11 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK            } from '../subworkflows/local/input_check'
-include { QC_FILT                } from '../subworkflows/local/readsqc'
-include { ALIGNMENT              } from '../subworkflows/local/alignment.nf'
-include { STRINGTIE_ASSEMBLY_GTF } from '../subworkflows/local/stringtie_assembly'
-include { GFFCOMPARE             } from '../modules/local/gffcompare/main'
-include { GFFREAD                } from '../modules/local/gffread/main'
-include { RNAMINING              } from '../modules/local/rnamining/main'
-
+include { INPUT_CHECK                       } from '../subworkflows/local/input_check'
+include { QC_FILT                           } from '../subworkflows/local/readsqc'
+include { ALIGNMENT                         } from '../subworkflows/local/alignment.nf'
+include { STRINGTIE_ASSEMBLY_GTF            } from '../subworkflows/local/stringtie_assembly'
+include { CLASSIFICATION_POTENTIAL_CODING   } from '../subworkflows/local/classification_codingpotential.nf'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
