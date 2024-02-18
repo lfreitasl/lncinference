@@ -291,6 +291,11 @@
                     "type": "string",
                     "default": 15000,
                     "description": "Maximum readlength that will be on data after filtering step."
+                },
+                "readqual": {
+                    "type": "string",
+                    "default": 10,
+                    "description": "Minimum read quality to keep in filtering step."
                 }
             }
         },

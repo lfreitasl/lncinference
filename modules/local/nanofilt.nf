@@ -9,7 +9,6 @@ process NANOFILT {
 
     input:
     tuple val(meta), path(reads)
-    val cutoff
 
     output:
     tuple val(meta), path("*.fastq.gz"), emit: filtreads
@@ -19,13 +18,14 @@ process NANOFILT {
     task.ext.when == null || task.ext.when
 
     script:
+    def args = task.ext.args ?: "--maxlength ${params.cutoff} -q ${params.readqual}"
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
         gunzip \\
         -c $reads \\
         | NanoFilt \\
-        --maxlength $cutoff \\
+        $args \\
         | gzip > ${prefix}
 
     cat <<-END_VERSIONS > versions.yml

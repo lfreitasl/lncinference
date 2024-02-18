@@ -23,8 +23,7 @@ include { READLENDISTRIBUTION as FILT_READLENDISTRIBUTION   } from '../../module
 
 workflow QC_FILT {
    take:
-       reads
-       cutoff       
+       reads       
     
    main:
     ch_versions = Channel.empty()
@@ -57,7 +56,7 @@ workflow QC_FILT {
 
    //Putting conditional to whether fun filtering on samples
    if (!params.skip_filtering){
-   NANOFILT(reads, cutoff)
+   NANOFILT(reads)
 
    //Running quality check in filtered reads
    FILT_FASTQC(NANOFILT.out.filtreads)

@@ -84,8 +84,7 @@ workflow LNCINFERENCE {
 
     if (!params.skip_qc) {
         QC_FILT (
-        INPUT_CHECK.out.reads,
-	    params.cutoff
+        INPUT_CHECK.out.reads
         )
     
     ch_versions = ch_versions.mix(QC_FILT.out.versions)
