@@ -17,7 +17,7 @@ process GFFCOMPARE {
     path "*.tmap"         , optional: true, emit: tmap
     path "*.refmap"       , optional: true, emit: refmap
     path "*.loci"         , emit: loci
-//    path "*.stats"         , emit: stats
+    path "*.stats"         , emit: stats
     path "*.tracking"     , emit: tracking
     path "versions.yml"                     , emit: versions
 
