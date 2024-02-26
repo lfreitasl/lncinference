@@ -29,7 +29,7 @@
 2. Reads filtering (Optional - [`Nanofilt`](https://github.com/wdecoster/nanofilt))
 3. Present QC before and after filtering for raw reads ([`MultiQC`](http://multiqc.info/))
 4. Align reads against a reference genome (Optional - [`Minimap2`](https://github.com/lh3/minimap2))
-5. Extract gtf file from alignment based on a reference gtf ([`Stringtie`](https://ccb.jhu.edu/software/stringtie/))
+5. Extract gtf file from alignment ([`Stringtie`](https://ccb.jhu.edu/software/stringtie/))
 6. Extract fasta from gtf produced by the last step ([`gffread`](https://github.com/gpertea/gffread))
 7. Predict coding potential of transcript present in fasta file ([`RNAmining`](https://github.com/thaisratis/RNAmining))
 
