@@ -38,7 +38,7 @@ outdir: "res_test"
 ##     only if skiping QC and Alignment)
 ##     Type: string
 ## -----------------------------------------------------------------------------
-input_bams: '/data/home/'
+input_bams: ''
 
 ## -----------------------------------------------------------------------------
 ## email
@@ -135,7 +135,7 @@ skip_qc: false
 ##     parameter to false and choosing adequate cutoff.
 ##     Type: boolean
 ## -----------------------------------------------------------------------------
-skip_filtering: true
+skip_filtering: false
 
 ## -----------------------------------------------------------------------------
 ## cutoff
@@ -145,6 +145,7 @@ skip_filtering: true
 ## -----------------------------------------------------------------------------
 cutoff: "15000"
 
+readqual: "10"
 
 ## =============================================================================
 ## Alignment options
@@ -212,6 +213,6 @@ refgff: "/data/home/lucas.freitas/babi_laura/referencia/Rattus_norvegicus.mRatBN
 ##     Whether skip classification and coding prediction steps
 ##     Type: boolean
 ## -----------------------------------------------------------------------------
-skip_class: true
+skip_class: false
 
 
